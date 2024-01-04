@@ -19,7 +19,17 @@
     <!-- Slider for Revolution Speed -->
     <div>
         <label for="speedSlider">Revolution Speed:</label>
-        <input type="range" id="speedSlider" min="1" max="100" value="50">
+        <input type="range" id="speedSlider" min="1" max="1000" value="50">
+    </div>
+    <!-- Slider for Camera X Position -->
+    <div>
+        <label for="cameraXSlider">Camera X Position:</label>
+        <input type="range" id="cameraXSlider" min="-1000" max="1000" value="0">
+    </div>
+    <!-- Slider for Camera Y Position -->
+    <div>
+        <label for="cameraYSlider">Camera Y Position:</label>
+        <input type="range" id="cameraYSlider" min="-1000" max="1000" value="0">
     </div>
 
     <script src="https://threejs.org/build/three.js"></script>
@@ -33,10 +43,14 @@
         // Access the sliders from the HTML
         var zoomSlider = document.getElementById('zoomSlider');
         var speedSlider = document.getElementById('speedSlider');
+        var cameraXSlider = document.getElementById('cameraXSlider');
+        var cameraYSlider = document.getElementById('cameraYSlider');
 
-        // Variables to hold the zoom and speed values
+        // Variables to hold the zoom, speed, cameraX, and cameraY values
         var zoomLevel = parseInt(zoomSlider.value);
         var revolutionSpeed = parseInt(speedSlider.value);
+        var cameraXPosition = parseInt(cameraXSlider.value);
+        var cameraYPosition = parseInt(cameraYSlider.value);
 
         // Event listeners to update the values when sliders are moved
         zoomSlider.oninput = function() {
@@ -46,6 +60,15 @@
         speedSlider.oninput = function() {
             revolutionSpeed = parseInt(this.value);
         }
+
+        cameraXSlider.oninput = function() {
+            cameraXPosition = parseInt(this.value);
+        }
+
+        cameraYSlider.oninput = function() {
+            cameraYPosition = parseInt(this.value);
+        }
+
 
         function addStars() {
             var geometry = new THREE.SphereGeometry(0.5, 24, 24);
@@ -185,6 +208,9 @@
             // Adjust the camera zoom based on the slider
             camera.position.z = zoomLevel;
 
+            // Adjust camera X and Y positions based on the sliders
+            camera.position.x = cameraXPosition;
+            camera.position.y = cameraYPosition;
             // Calculate the revolution speed factor
             // var speedFactor = revolutionSpeed / 50.0;
 
