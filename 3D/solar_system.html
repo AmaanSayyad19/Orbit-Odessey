@@ -56,9 +56,54 @@
             width: 150px;
             margin-bottom: 10px;
         }
+
+        #music-toggle {
+            position: fixed;
+            cursor: pointer;
+            width: 50px;
+            height: 50px;
+            top: 10px;
+            right: 10px;
+        }
     </style>
 </head>
 <body>
+    <audio id="myAudio">
+        <source src="space.mp3" type="audio/mp3">
+        Your browser does not support the audio element.
+    </audio>
+    <script>
+        // Get the audio element by its ID
+        var audio = document.getElementById('myAudio');
+    
+        // Play the audio when the page loads
+        window.onload = function() {
+            audio.play();
+        };
+    </script>
+    
+    <div id="music-toggle" onclick="toggleMusic()">
+        <img id="music-icon" src="music-on.png" alt="Music On" width="50" height="50">
+    </div>
+    
+    <div id="planet-name">
+        <!-- This is the element where the planet name will be displayed -->
+    </div>
+
+    <script>
+        var audio = document.getElementById('myAudio');
+        var musicIcon = document.getElementById('music-icon');
+    
+        function toggleMusic() {
+            if (audio.paused) {
+                audio.play();
+                musicIcon.src = 'music-on.png';
+            } else {
+                audio.pause();
+                musicIcon.src = 'music-off.png';
+            }
+        }
+    </script>
 
     <div class="controls-container">
         <!-- Slider for Zoom -->
