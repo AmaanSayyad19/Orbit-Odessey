@@ -5,31 +5,82 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Real Scale Solar System</title>
     <style>
-        body { margin: 0; }
-        canvas { display: block; }
+        body {
+            margin: 0;
+            overflow: hidden; /* Prevents scrollbars */
+            font-family: Arial, sans-serif;
+            background: linear-gradient(to bottom, #000033, #000); /* Dark blue to black gradient */
+            animation: backgroundAnimation 60s infinite linear; /* CSS animation for background */
+        }
+
+        @keyframes backgroundAnimation {
+            0% {
+                background-position: 0% 0%;
+            }
+            25% {
+                background-position: 0% 100%;
+            }
+            50% {
+                background-position: 0% 0%;
+            }
+            75% {
+                background-position: 0% 100%;
+            }
+            100% {
+                background-position: 0% 0%;
+            }
+        }
+
+        canvas { 
+            display: block; 
+        }
+
+        .controls-container {
+            position: absolute;
+            bottom: 10px;
+            right: 10px;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 10px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        .slider-label {
+            margin-bottom: 5px;
+        }
+
+        input[type="range"] {
+            width: 150px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
-    <canvas></canvas>
-    <!-- Slider for Zoom -->
-    <div>
-        <label for="zoomSlider">Zoom:</label>
-        <input type="range" id="zoomSlider" min="100" max="1000" value="500">
-    </div>
-    <!-- Slider for Revolution Speed -->
-    <div>
-        <label for="speedSlider">Revolution Speed:</label>
-        <input type="range" id="speedSlider" min="1" max="1000" value="50">
-    </div>
-    <!-- Slider for Camera X Position -->
-    <div>
-        <label for="cameraXSlider">Camera X Position:</label>
-        <input type="range" id="cameraXSlider" min="-1000" max="1000" value="0">
-    </div>
-    <!-- Slider for Camera Y Position -->
-    <div>
-        <label for="cameraYSlider">Camera Y Position:</label>
-        <input type="range" id="cameraYSlider" min="-1000" max="1000" value="0">
+
+    <div class="controls-container">
+        <!-- Slider for Zoom -->
+        <div>
+            <label class="slider-label" for="zoomSlider">Zoom:</label>
+            <input type="range" id="zoomSlider" min="100" max="1000" value="500">
+        </div>
+        <!-- Slider for Revolution Speed -->
+        <div>
+            <label class="slider-label" for="speedSlider">Revolution Speed:</label>
+            <input type="range" id="speedSlider" min="1" max="1000" value="50">
+        </div>
+        <!-- Slider for Camera X Position -->
+        <div>
+            <label class="slider-label" for="cameraXSlider">Camera X Position:</label>
+            <input type="range" id="cameraXSlider" min="-1000" max="1000" value="0">
+        </div>
+        <!-- Slider for Camera Y Position -->
+        <div>
+            <label class="slider-label" for="cameraYSlider">Camera Y Position:</label>
+            <input type="range" id="cameraYSlider" min="-1000" max="1000" value="0">
+        </div>
     </div>
 
     <script src="https://threejs.org/build/three.js"></script>
@@ -70,22 +121,102 @@
         }
 
 
-        function addStars() {
-            var geometry = new THREE.SphereGeometry(0.5, 24, 24);
-            var material = new THREE.MeshBasicMaterial({ color: 0xffffff });
-            for (var i = 0; i < 300; i++) { // Reduced number of stars
-                var star = new THREE.Mesh(geometry, material);
-                // Random positions far away from the center
-                star.position.x = THREE.Math.randFloatSpread(500);
-                star.position.y = THREE.Math.randFloatSpread(500);
-                // Ensure stars are placed well beyond the solar system plane to avoid overwhelming the view
-                star.position.z = THREE.Math.randFloatSpread(500) + 10; 
-                scene.add(star);
+        
+        
+        function addShinyStars() {
+            var starsGeometry = new THREE.BufferGeometry();
+            var starsMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 0.4, transparent: true, opacity: 2.3 });
+
+            var starsVertices = [];
+            for (var i = 0; i < 15000; i++) {
+                var x = (Math.random() - 0.5) * 2000;
+                var y = (Math.random() - 0.5) * 2000;
+                var z = (Math.random() - 0.5) * 2000;
+                starsVertices.push(x, y, z);
+            }
+
+            starsGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starsVertices, 3));
+            var stars = new THREE.Points(starsGeometry, starsMaterial);
+            scene.add(stars);
+        }
+
+        // Call the function to add shiny stars
+        addShinyStars();
+
+        // Function to add random asteroids to the scene
+        function addAsteroids() {
+            var asteroidGeometry = new THREE.SphereGeometry(1, 32, 32);
+            var asteroidMaterial = new THREE.MeshBasicMaterial({ color: 0x888888 });
+
+            for (var i = 0; i < 100; i++) {
+                var asteroid = new THREE.Mesh(asteroidGeometry, asteroidMaterial);
+                asteroid.position.x = (Math.random() - 0.5) * 500;
+                asteroid.position.y = (Math.random() - 0.5) * 500;
+                asteroid.position.z = (Math.random() - 0.5) * 500;
+                scene.add(asteroid);
             }
         }
-        // addStars();
-        
-        
+
+        // Call the function to add asteroids
+        addAsteroids();
+
+        // Function to add random shooting stars to the scene
+        function addShootingStars() {
+            var shootingStars = new THREE.Group();
+
+            for (var i = 0; i < 10; i++) { // You can adjust the number of shooting stars
+                var starMaterial = new THREE.LineBasicMaterial({ color: 0xFFFFFF });
+                var starGeometry = new THREE.BufferGeometry();
+                var starVertices = [];
+
+                // Random start and end points for shooting stars
+                var startX = (Math.random() - 0.5) * 2000;
+                var startY = (Math.random() - 0.5) * 2000;
+                var startZ = (Math.random() - 0.5) * 2000;
+
+                var endX = startX + (Math.random() - 0.5) * 100; // Adjusted distance for shorter trails
+                var endY = startY + (Math.random() - 0.5) * 100;
+                var endZ = startZ + (Math.random() - 0.5) * 100;
+
+                starVertices.push(startX, startY, startZ);
+                starVertices.push(endX, endY, endZ);
+
+                starGeometry.setAttribute('position', new THREE.Float32BufferAttribute(starVertices, 3));
+
+                var shootingStar = new THREE.Line(starGeometry, starMaterial);
+                shootingStars.add(shootingStar);
+            }
+
+            scene.add(shootingStars);
+
+            // Animate shooting stars
+            var animationSpeed = 0.1;
+
+            function animateShootingStars() {
+                shootingStars.children.forEach(function (shootingStar) {
+                    var position = shootingStar.geometry.attributes.position;
+                    position.setXYZ(0, position.getX(0) + animationSpeed, position.getY(0), position.getZ(0) + animationSpeed);
+                    position.setXYZ(1, position.getX(1) + animationSpeed, position.getY(1), position.getZ(1) + animationSpeed);
+
+                    if (position.getX(0) > 1000 || position.getZ(0) > 1000) {
+                        // Reset shooting star if it goes too far
+                        position.setXYZ(0, -1000, position.getY(0), -1000);
+                        position.setXYZ(1, -900, position.getY(1), -900);
+                    }
+
+                    position.needsUpdate = true;
+                });
+
+                requestAnimationFrame(animateShootingStars);
+            }
+
+            animateShootingStars();
+        }
+
+        // Call the function to add shooting stars
+        addShootingStars();
+
+
 
         // Sun
         var sunGeometry = new THREE.SphereGeometry(30, 32, 32);
