@@ -213,6 +213,38 @@
         // Call the function to add shooting stars
         addShootingStars();
 
+        function createMoon(planetPosition, orbitRadius, size, texturePath) {
+            // Create moon geometry and material
+            var moonGeometry = new THREE.SphereGeometry(size, 32, 32);
+            var moonMaterial = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load(texturePath) });
+            var moon = new THREE.Mesh(moonGeometry, moonMaterial);
+        
+            // Set initial position
+            moon.position.set(planetPosition.x + orbitRadius, planetPosition.y, planetPosition.z);
+        
+            // Return the moon object
+            return moon;
+        }
+        
+        function createMoonOrbit(planetPosition, orbitRadius, color) {
+            var orbitPath = new THREE.EllipseCurve(
+                planetPosition.x,  planetPosition.z,    // ax, aY
+                orbitRadius, orbitRadius,               // xRadius, yRadius
+                0,  2 * Math.PI,                        // aStartAngle, aEndAngle
+                false,                                  // aClockwise
+                0                                       // aRotation
+            );
+        
+            var orbitPoints = orbitPath.getPoints(64);
+            var orbitGeometry = new THREE.BufferGeometry().setFromPoints(orbitPoints);
+            var orbitMaterial = new THREE.LineBasicMaterial({ color: color });
+            var orbitMesh = new THREE.Line(orbitGeometry, orbitMaterial);
+            orbitMesh.rotation.x = Math.PI / 2;
+        
+            return orbitMesh;
+        }
+        
+
 
         // Sun
         var sunGeometry = new THREE.SphereGeometry(30, 32, 32);
@@ -313,6 +345,26 @@
         var neptune = new THREE.Mesh(neptuneGeometry, neptuneMaterial);
         scene.add(neptune);
 
+        // Earth's Moon
+        var earthMoon = createMoon(earth.position, 20, 2, 'MOON.jpg');  // Adjust size and texture as needed
+        var earthMoonOrbit = createMoonOrbit(earth.position, 20, 0x888888);  // Adjust color as needed
+        scene.add(earthMoon);
+        scene.add(earthMoonOrbit);
+
+        // Jupiter's Galilean Moons (simplified representation)
+        var jupiterMoon1 = createMoon(jupiter.position, 35, 3, 'GANYMEDE.jpg');  // Adjust size and texture as needed
+        var jupiterMoonOrbit1 = createMoonOrbit(jupiter.position, 35, 0x888888);  // Adjust color as needed
+        scene.add(jupiterMoon1);
+        scene.add(jupiterMoonOrbit1);
+        // Repeat for other Galilean moons with different orbitRadius and potentially sizes
+
+        // Saturn's largest moon, Titan
+        var saturnMoon = createMoon(saturn.position, 40, 3, 'TITAN.jpg');  // Adjust size and texture as needed
+        var saturnMoonOrbit = createMoonOrbit(saturn.position, 40, 0x888888);  // Adjust color as needed
+        scene.add(saturnMoon);
+        scene.add(saturnMoonOrbit);
+
+
         // Set initial positions
         mercury.position.set(40, 0, 0);
         venus.position.set(60, 0, 0);
@@ -370,6 +422,18 @@
 
             neptune.position.x = 580 * Math.cos((Date.now() * 0.0000078125) * (revolutionSpeed / 50));
             neptune.position.z = 580 * Math.sin((Date.now() * 0.0000078125) * (revolutionSpeed / 50));
+
+            // Animate Earth's Moon
+            earthMoon.position.x = earth.position.x + 20 * Math.cos((Date.now() * 0.001) * (revolutionSpeed / 50));
+            earthMoon.position.z = earth.position.z + 20 * Math.sin((Date.now() * 0.001) * (revolutionSpeed / 50));
+
+            // Animate Jupiter's Moons (example for one moon)
+            jupiterMoon1.position.x = jupiter.position.x + 35 * Math.cos((Date.now() * 0.001) * (revolutionSpeed / 50));
+            jupiterMoon1.position.z = jupiter.position.z + 35 * Math.sin((Date.now() * 0.001) * (revolutionSpeed / 50));
+
+            // Animate Saturn's Moon, Titan
+            saturnMoon.position.x = saturn.position.x + 40 * Math.cos((Date.now() * 0.001) * (revolutionSpeed / 50));
+            saturnMoon.position.z = saturn.position.z + 40 * Math.sin((Date.now() * 0.001) * (revolutionSpeed / 50));
 
             // Rotate planets
             mercury.rotation.y += 0.01;
