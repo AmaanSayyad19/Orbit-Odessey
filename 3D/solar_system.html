@@ -120,6 +120,7 @@
             cameraYPosition = parseInt(this.value);
         }
 
+        
         function addShinyStars() {
             var starsGeometry = new THREE.BufferGeometry();
             var starsMaterial = new THREE.PointsMaterial({ color: 0xFFFFFF, size: 0.4, transparent: true, opacity: 2.3 });
@@ -212,6 +213,29 @@
 
         // Call the function to add shooting stars
         addShootingStars();
+        
+
+        
+        /*    
+        // Load the skybox images as textures
+        var textureCube = new THREE.TextureLoader().load(
+        ["RED.jpg",  // right
+        "SPACE.jpg", // left
+        "RED.jpg",  // top
+        "SPACE.jpg", // bottom
+        "RED.jpg",  // front
+        "RED.jpg"]);
+        
+        // Set the scene background as the loaded texture cube
+        scene.background = textureCube;
+        */
+        
+        
+        // Sun
+        var sunGeometry = new THREE.SphereGeometry(30, 32, 32);
+        var sunMaterial = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('SUN.jpg') });
+        var sun = new THREE.Mesh(sunGeometry, sunMaterial);
+        scene.add(sun);
 
         function createMoon(planetPosition, orbitRadius, size, texturePath) {
             // Create moon geometry and material
@@ -230,7 +254,7 @@
             var orbitPath = new THREE.EllipseCurve(
                 planetPosition.x,  planetPosition.z,    // ax, aY
                 orbitRadius, orbitRadius,               // xRadius, yRadius
-                0,  2 * Math.PI,                        // aStartAngle, aEndAngle
+                2,  2 * Math.PI,                        // aStartAngle, aEndAngle
                 false,                                  // aClockwise
                 0                                       // aRotation
             );
@@ -246,11 +270,7 @@
         
 
 
-        // Sun
-        var sunGeometry = new THREE.SphereGeometry(30, 32, 32);
-        var sunMaterial = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('SUN.jpg') });
-        var sun = new THREE.Mesh(sunGeometry, sunMaterial);
-        scene.add(sun);
+        
 
         // Function to create an orbit for a planet
         function createPlanetOrbit(a, b, color) {
