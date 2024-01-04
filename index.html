@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Live Solar System Model</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #111; /* Dark background color */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            font-family: Arial, sans-serif;
+            color: white;
+        }
+
+        canvas {
+            display: block;
+            cursor: grab;
+            transition: transform 0.5s;
+        }
+
+        canvas.grabbing {
+            cursor: grabbing;
+        }
+
+        /* Generate stars */
+        .stars {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .stars:before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 1px;
+            height: 1px;
+            background: #fff; /* Star color */
+            box-shadow:
+                100px 200px #fff,
+                200px 300px #fff,
+                300px 400px #fff,
+                400px 500px #fff,
+                500px 600px #fff,
+                600px 700px #fff,
+                700px 800px #fff,
+                800px 900px #fff,
+                900px 1000px #fff,
+                1000px 1100px #fff; /* Add more stars as needed */
+            animation: stars 50s infinite linear;
+        }
+
+        @keyframes stars {
+            to {
+                transform: translate(0, -1100px);
+            }
+        }
+
+        .speed-bar {
+            position: absolute;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+        }
+
+        #planetInfo {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="solarSystemCanvas"></canvas>
+    <div class="stars"></div>
+    <div class="speed-bar">
+        <label for="speed">Revolution Speed:</label>
+        <input type="range" id="speed" min="0.00001" max="1.00" step="0.001" value="0.0001">
+        <span id="speed-value">0.0001</span>
+    </div>
+    <div id="planetInfo"></div>
+
+    <script>
+        const canvas = document.getElementById("solarSystemCanvas");
+        const ctx = canvas.getContext("2d");
+
+        const speedInput = document.getElementById("speed");
+        const speedValue = document.getElementById("speed-value");
+        const planetInfo = document.getElementById("planetInfo");
+
+        canvas.width = window.innerWidth;
+        canvas.height = window.innerHeight;
+
+        const sunRadius = 20;
+        const planetRadiusFactor = 0.3; // Adjust this factor to control planet sizes
+        const orbitSizeFactor = 0.15; // Adjust this factor to control orbit sizes
+
+        const planetRadius = {
+            mercury: 20 * planetRadiusFactor,
+            venus: 30 * planetRadiusFactor,
+            earth: 40 * planetRadiusFactor,
+            mars: 30 * planetRadiusFactor,
+            jupiter: 80 * planetRadiusFactor,
+            saturn: 70 * planetRadiusFactor,
+            uranus: 50 * planetRadiusFactor,
+            neptune: 50 * planetRadiusFactor
+        };
+
+        const planetOrbitRadius = {
+            mercury: 200 * orbitSizeFactor,
+            venus: 300 * orbitSizeFactor,
+            earth: 440 * orbitSizeFactor,
+            mars: 600 * orbitSizeFactor,
+            jupiter: 900 * orbitSizeFactor,
+            saturn: 1200 * orbitSizeFactor,
+            uranus: 1500 * orbitSizeFactor,
+            neptune: 1800 * orbitSizeFactor
+        };
+
+        const planetNames = {
+            mercury: "Mercury",
+            venus: "Venus",
+            earth: "Earth",
+            mars: "Mars",
+            jupiter: "Jupiter",
+            saturn: "Saturn",
+            uranus: "Uranus",
+            neptune: "Neptune"
+        };
+
+        const planetImages = {};
+
+        // Load planet images
+        Object.keys(planetNames).forEach(planet => {
+            planetImages[planet] = new Image();
+            planetImages[planet].src = `${planet}.jpg`; // Replace with the actual path to your images
+        });
+
+        let revolutionSpeed = parseFloat(speedInput.value);
+        let scale = 1;
+
+        speedInput.addEventListener("input", function () {
+            revolutionSpeed = parseFloat(speedInput.value);
+            speedValue.textContent = revolutionSpeed.toFixed(5);
+        });
+
+        canvas.addEventListener("wheel", handleZoom);
+        canvas.addEventListener("mousedown", () => (canvas.style.cursor = "grabbing"));
+        canvas.addEventListener("mouseup", () => (canvas.style.cursor = "grab"));
+        canvas.addEventListener("mouseleave", () => (canvas.style.cursor = "grab"));
+        canvas.addEventListener("click", handlePlanetClick);
+
+        function handleZoom(event) {
+            const zoomSpeed = 0.001;
+            const deltaY = event.deltaY;
+            const previousScale = scale;
+
+            if (deltaY < 0) {
+                // Zoom in
+                scale *= 1 + zoomSpeed;
+            } else {
+                // Zoom out
+                scale *= 1 - zoomSpeed;
+            }
+
+            // Limit the scale to avoid extreme zoom levels
+            scale = Math.max(0.1, Math.min(scale, 5));
+
+            // Adjust the canvas transformation
+            const offsetX = (1 - scale) * canvas.width / 2;
+            const offsetY = (1 - scale) * canvas.height / 2;
+
+            ctx.setTransform(scale, 0, 0, scale, offsetX, offsetY);
+
+            // Reverse the planet movement due to the zoom
+            const scaleRatio = scale / previousScale;
+            Object.keys(planetOrbitRadius).forEach(planet => {
+                planetOrbitRadius[planet] *= scaleRatio;
+            });
+        }
+
+        function handlePlanetClick(event) {
+            const x = event.clientX;
+            const y = event.clientY;
+
+            // Check if the click is on any planet
+            Object.keys(planetRadius).forEach(planet => {
+                const planetX = canvas.width / 2 + planetOrbitRadius[planet] * Math.cos(Date.now() * revolutionSpeed * (1 / planetOrbitRadius[planet]));
+                const planetY = canvas.height / 2 + planetOrbitRadius[planet] * Math.sin(Date.now() * revolutionSpeed * (1 / planetOrbitRadius[planet]));
+
+                if (Math.sqrt((x - planetX) ** 2 + (y - planetY) ** 2) <= planetRadius[planet]) {
+                    displayPlanetInfo(planet);
+                }
+            });
+        }
+
+        function displayPlanetInfo(planet) {
+            const currentDate = new Date();
+            const currentTime = currentDate.toLocaleTimeString();
+            const currentTemperature = calculateTemperature(planet);
+
+            planetInfo.innerHTML = `
+                <strong>${planetNames[planet]}</strong><br>
+                Date: ${currentDate.toDateString()}<br>
+                Time: ${currentTime}<br>
+                Temperature: ${currentTemperature} °C
+            `;
+
+            planetInfo.style.display = "block";
+        }
+
+        function calculateTemperature(planet) {
+            // Add your logic to calculate the temperature for each planet
+            // This is just a placeholder, replace it with the actual calculations
+            const baseTemperature = 20; // Placeholder base temperature
+            return baseTemperature;
+        }
+
+        function drawSolarSystem() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // Draw Planets
+            Object.keys(planetRadius).forEach(planet => {
+                const angle = Date.now() * revolutionSpeed * (1 / planetOrbitRadius[planet]);
+                const x = canvas.width / 2 + planetOrbitRadius[planet] * Math.cos(angle);
+                const y = canvas.height / 2 + planetOrbitRadius[planet] * Math.sin(angle);
+
+                // Draw circular-clipped planet image
+                ctx.save();
+                ctx.beginPath();
+                ctx.arc(x, y, planetRadius[planet], 0, Math.PI * 2);
+                ctx.clip();
+                ctx.drawImage(planetImages[planet], x - planetRadius[planet], y - planetRadius[planet], planetRadius[planet] * 2, planetRadius[planet] * 2);
+                ctx.restore();
+
+                // Draw orbit path
+                ctx.beginPath();
+                ctx.strokeStyle = "rgba(255, 255, 255, 0.1)";
+                ctx.arc(canvas.width / 2, canvas.height / 2, planetOrbitRadius[planet], 0, Math.PI * 2);
+                ctx.stroke();
+
+                // Draw planet name
+                ctx.fillStyle = "white";
+                ctx.font = "12px Arial, sans-serif";
+                ctx.fillText(planetNames[planet], x - planetRadius[planet], y + planetRadius[planet] + 15);
+            });
+
+            // Draw Sun (centered at the end for a 3D effect)
+            ctx.beginPath();
+            ctx.fillStyle = "yellow";
+            ctx.arc(canvas.width / 2, canvas.height / 2, sunRadius, 0, Math.PI * 2);
+            ctx.fill();
+
+            requestAnimationFrame(drawSolarSystem);
+        }
+
+        drawSolarSystem();
+    </script>
+</body>
+</html>
