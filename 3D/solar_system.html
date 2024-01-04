@@ -19,7 +19,7 @@
     <!-- Slider for Revolution Speed -->
     <div>
         <label for="speedSlider">Revolution Speed:</label>
-        <input type="range" id="speedSlider" min="1" max="1000" value="50">
+        <input type="range" id="speedSlider" min="1" max="100" value="50">
     </div>
 
     <script src="https://threejs.org/build/three.js"></script>
@@ -47,6 +47,23 @@
             revolutionSpeed = parseInt(this.value);
         }
 
+        function addStars() {
+            var geometry = new THREE.SphereGeometry(0.5, 24, 24);
+            var material = new THREE.MeshBasicMaterial({ color: 0xffffff });
+            for (var i = 0; i < 300; i++) { // Reduced number of stars
+                var star = new THREE.Mesh(geometry, material);
+                // Random positions far away from the center
+                star.position.x = THREE.Math.randFloatSpread(500);
+                star.position.y = THREE.Math.randFloatSpread(500);
+                // Ensure stars are placed well beyond the solar system plane to avoid overwhelming the view
+                star.position.z = THREE.Math.randFloatSpread(500) + 10; 
+                scene.add(star);
+            }
+        }
+        // addStars();
+        
+        
+
         // Sun
         var sunGeometry = new THREE.SphereGeometry(30, 32, 32);
         var sunMaterial = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('SUN.jpg') });
@@ -54,10 +71,11 @@
         scene.add(sun);
 
         // Mercury
-        var mercuryOrbit = new THREE.CircleGeometry(40, 64);
+        var mercuryOrbit = new THREE.CircleGeometry(40, 64, 0, 2 * Math.PI);
+        //mercuryOrbit.vertices.shift(); // Remove the center vertex
         var mercuryOrbitMaterial = new THREE.LineBasicMaterial({ color: 0xffffff });
-        var mercuryOrbitMesh = new THREE.Line(mercuryOrbit, mercuryOrbitMaterial);
-        scene.add(mercuryOrbit);
+        var mercuryOrbitMesh = new THREE.LineLoop(mercuryOrbit, mercuryOrbitMaterial);
+        scene.add(mercuryOrbitMesh);
 
         var mercuryGeometry = new THREE.SphereGeometry(5, 32, 32);
         var mercuryMaterial = new THREE.MeshBasicMaterial({ map: new THREE.TextureLoader().load('MERCURY.jpg') });
@@ -168,32 +186,35 @@
             camera.position.z = zoomLevel;
 
             // Calculate the revolution speed factor
-            var speedFactor = revolutionSpeed / 50.0;
+            // var speedFactor = revolutionSpeed / 50.0;
+
+            // Get the current time in seconds for smoother revolutions
+            var currentTime = Date.now() * 0.0001;
 
             // Make planets revolve around the sun
-            mercury.position.x = 40 * Math.cos(Date.now() * 0.001);
-            mercury.position.z = 40 * Math.sin(Date.now() * 0.001);
+            mercury.position.x = 40 * Math.cos((Date.now() * 0.001) * (revolutionSpeed / 50));
+            mercury.position.z = 40 * Math.sin((Date.now() * 0.001) * (revolutionSpeed / 50));
 
-            venus.position.x = 60 * Math.cos(Date.now() * 0.0005);
-            venus.position.z = 60 * Math.sin(Date.now() * 0.0005);
+            venus.position.x = 60 * Math.cos((Date.now() * 0.0005) * (revolutionSpeed / 50));
+            venus.position.z = 60 * Math.sin((Date.now() * 0.0005) * (revolutionSpeed / 50));
 
-            earth.position.x = 90 * Math.cos(Date.now() * 0.00025);
-            earth.position.z = 90 * Math.sin(Date.now() * 0.00025);
+            earth.position.x = 90 * Math.cos((Date.now() * 0.00025) * (revolutionSpeed / 50));
+            earth.position.z = 90 * Math.sin((Date.now() * 0.00025) * (revolutionSpeed / 50));
 
-            mars.position.x = 140 * Math.cos(Date.now() * 0.000125);
-            mars.position.z = 140 * Math.sin(Date.now() * 0.000125);
+            mars.position.x = 140 * Math.cos((Date.now() * 0.000125) * (revolutionSpeed / 50));
+            mars.position.z = 140 * Math.sin((Date.now() * 0.000125) * (revolutionSpeed / 50));
 
-            jupiter.position.x = 230 * Math.cos(Date.now() * 0.0000625);
-            jupiter.position.z = 230 * Math.sin(Date.now() * 0.0000625);
+            jupiter.position.x = 230 * Math.cos((Date.now() * 0.0000625) * (revolutionSpeed / 50));
+            jupiter.position.z = 230 * Math.sin((Date.now() * 0.0000625) * (revolutionSpeed / 50));
 
-            saturn.position.x = 330 * Math.cos(Date.now() * 0.00003125);
-            saturn.position.z = 330 * Math.sin(Date.now() * 0.00003125);
+            saturn.position.x = 330 * Math.cos((Date.now() * 0.00003125) * (revolutionSpeed / 50));
+            saturn.position.z = 330 * Math.sin((Date.now() * 0.00003125) * (revolutionSpeed / 50));
 
-            uranus.position.x = 460 * Math.cos(Date.now() * 0.000015625);
-            uranus.position.z = 460 * Math.sin(Date.now() * 0.000015625);
+            uranus.position.x = 460 * Math.cos((Date.now() * 0.000015625) * (revolutionSpeed / 50));
+            uranus.position.z = 460 * Math.sin((Date.now() * 0.000015625) * (revolutionSpeed / 50));
 
-            neptune.position.x = 580 * Math.cos(Date.now() * 0.0000078125);
-            neptune.position.z = 580 * Math.sin(Date.now() * 0.0000078125);
+            neptune.position.x = 580 * Math.cos((Date.now() * 0.0000078125) * (revolutionSpeed / 50));
+            neptune.position.z = 580 * Math.sin((Date.now() * 0.0000078125) * (revolutionSpeed / 50));
 
             // Rotate planets
             mercury.rotation.y += 0.01;
@@ -207,6 +228,8 @@
 
             renderer.render(scene, camera);
         }
+        // Call the function to add stars
+        //addStars();
 
         animate();
     </script>
