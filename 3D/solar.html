@@ -65,32 +65,6 @@
             top: 10px;
             right: 10px;
         }
-        #planet-selector-btn {
-            position: fixed;
-            cursor: pointer;
-            width: 50px;
-            height: 50px;
-            bottom: 10px;
-            left: 10px;
-            z-index: 1;
-        }
-
-        #planet-selector-container {
-            position: fixed;
-            bottom: 70px;
-            left: 10px;
-            display: none;
-            z-index: 1;
-        }
-
-        .planet-btn {
-            margin-bottom: 5px;
-            padding: 5px;
-            cursor: pointer;
-            background-color: rgba(255, 255, 255, 0.8);
-            border-radius: 5px;
-            box-shadow: 0 0 5px rgba(0, 0, 0, 0.2);
-        }
     </style>
 </head>
 <body>
@@ -115,21 +89,6 @@
     <div id="planet-name">
         <!-- This is the element where the planet name will be displayed -->
     </div>
-    <div id="planet-selector-btn" onclick="togglePlanetSelector()">
-        <img src="planets.png" alt="Planet Selector" width="50" height="50">
-    </div>
-
-    <div id="planet-selector-container">
-        <div class="planet-btn" onclick="selectPlanet('Mercury')">Mercury</div>
-        <div class="planet-btn" onclick="selectPlanet('Venus')">Venus</div>
-        <div class="planet-btn" onclick="selectPlanet('Earth')">Earth</div>
-        <div class="planet-btn" onclick="selectPlanet('Mars')">Mars</div>
-        <div class="planet-btn" onclick="selectPlanet('Jupiter')">Jupiter</div>
-        <div class="planet-btn" onclick="selectPlanet('Saturn')">Saturn</div>
-        <div class="planet-btn" onclick="selectPlanet('Uranus')">Uranus</div>
-        <div class="planet-btn" onclick="selectPlanet('Neptune')">Neptune</div>
-        <!-- Add more buttons as needed -->
-    </div>
 
     <script>
         var audio = document.getElementById('myAudio');
@@ -143,16 +102,6 @@
                 audio.pause();
                 musicIcon.src = 'music-off.png';
             }
-        }
-        function togglePlanetSelector() {
-            var planetSelectorContainer = document.getElementById('planet-selector-container');
-            planetSelectorContainer.style.display = (planetSelectorContainer.style.display === 'none' || planetSelectorContainer.style.display === '') ? 'block' : 'none';
-        }
-
-        function selectPlanet(planetName) {
-            // Handle the selection logic here
-            // You can add functionality to focus on the selected planet, etc.
-            window.location.href = '' + planetName + '.html'
         }
     </script>
 
