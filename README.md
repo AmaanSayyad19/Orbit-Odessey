@@ -1,3 +1,3 @@
 # Solar-System-model
-Amaan Sayyad
+Amaan Sayyad,
 Dhruvil Patel
